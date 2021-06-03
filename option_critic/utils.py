@@ -53,12 +53,16 @@ class SoftmaxPolicy(): # intra-policy options
     def pmf(self, state):
         exponent = self.Q_U(state) / self.temperature
         return np.exp(exponent - logsumexp(exponent))
-
-    def sample(self, state):
+    
+    def sample0(self, state):
         if self.rng.uniform() < self.epsilon:
              return int(self.rng.randint(self.nactions))
         else:
             return int(self.rng.choice(self.nactions, p=self.pmf(state)))
+        
+    
+    def sample(self, state):
+        return int(self.rng.choice(self.nactions, p=self.pmf(state)))
     
     def evaluate(self,state):
         return int(np.argmax(self.pmf(state)))
@@ -70,7 +74,9 @@ class SoftmaxPolicy(): # intra-policy options
         actions_pmf = self.pmf(state)
         self.weights[state, :] -= self.lr * actions_pmf * Q_U
         self.weights[state, action] += self.lr * Q_U
-
+    
+    def set_temperature(self, temperature):
+        self.temperature = temperature
 
 class SigmoidTermination(): # policy temination conditions
 
